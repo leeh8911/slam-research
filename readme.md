@@ -1,3 +1,54 @@
+# Slam Research
+
+[toc]
+
+## Architecture
+
+```mermaid
+classDiagram
+
+App --> DataLoader
+App --> Odometry
+App --> Logger
+
+DataLoader ..> Frame
+
+Odometry ..> Pose
+
+class App {
+    -DataLoader dataloader
+    -Odometry odometry
+    -Logger logger
+}
+
+class DataLoader {
+    +SetSequence(int sequence_index)
+    +GetFrame() Frame
+    +HasNext() bool
+    +Next()
+}
+
+class Odometry {
+    +Execute(Frame frame) Pose
+}
+
+class Logger {
+    +SetLogname(String name)
+    +Log(Pose pose)
+}
+
+class Frame {
+    +Mat cam0
+    +Mat cam1
+    +Mat cam2
+    +Mat cam3
+    +Lidar lidar
+}
+
+```
+
+## Misc
+
 conan install --profile ..\conanprofile.txt .. --build=missing
 conan install .. --build=missing -s build_type=Debug
 

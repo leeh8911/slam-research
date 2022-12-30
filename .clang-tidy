@@ -16,6 +16,7 @@ bugprone-*,
 -bugprone-lambda-function-name,
 -bugprone-reserved-identifier,
 cppcoreguidelines-*,
+-cppcoreguidelines-init-variables, # TODO(sangwon): remove someday..
 -cppcoreguidelines-avoid-magic-numbers,
 -cppcoreguidelines-interfaces-global-init,
 -cppcoreguidelines-macro-usage,

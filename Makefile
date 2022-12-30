@@ -7,7 +7,7 @@ conan:
 
 .PHONY: test
 test: conan
-	mkdir -p build || \
+	mkdir build || \
 	cd build && \
 	cmake ..&& \
 	cmake --build . &&\
@@ -15,7 +15,7 @@ test: conan
 	
 .PHONY: run
 run: conan
-	mkdir -p build || \
+	mkdir build || \
 	cd build && \
 	cmake ..&& \
 	cmake --build . &&\
