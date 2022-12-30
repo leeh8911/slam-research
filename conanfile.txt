@@ -1,0 +1,14 @@
+[requires]
+zlib/1.2.13
+openssl/1.1.1s
+libpng/1.6.37
+freetype/2.12.1
+eigen/3.3.9@camposs/stable
+sophus/22.04.1
+opencv/4.5.0
+gtest/1.8.1@bincrafters/stable
+# pcl
+# open3d
+[generators]
+cmake
+txt

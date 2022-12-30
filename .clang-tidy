@@ -1,0 +1,76 @@
+Checks: '
+-*,
+clang-diagnostic-*,
+llvm-*,
+-llvm-header-guard,
+misc-*,
+-misc-const-correctness,
+-misc-unused-parameters,
+-misc-non-private-member-variables-in-classes,
+-misc-no-recursion,
+readability-identifier-naming,
+-readability-magic-numbers,
+bugprone-*,
+-bugprone-forward-declaration-namespace,
+-bugprone-macro-parentheses,
+-bugprone-lambda-function-name,
+-bugprone-reserved-identifier,
+cppcoreguidelines-*,
+-cppcoreguidelines-avoid-magic-numbers,
+-cppcoreguidelines-interfaces-global-init,
+-cppcoreguidelines-macro-usage,
+-cppcoreguidelines-owning-memory,
+-cppcoreguidelines-pro-bounds-array-to-pointer-decay,
+-cppcoreguidelines-pro-bounds-constant-array-index,
+-cppcoreguidelines-pro-bounds-pointer-arithmetic,
+-cppcoreguidelines-pro-type-reinterpret-cast,
+-cppcoreguidelines-pro-type-static-cast-downcast,
+-cppcoreguidelines-pro-type-union-access,
+-cppcoreguidelines-pro-type-vararg,
+-cppcoreguidelines-special-member-functions,
+-facebook-hte-RelativeInclude,
+hicpp-exception-baseclass,
+hicpp-avoid-goto,
+modernize-*,
+-modernize-raw-string-literal,
+-modernize-concat-nested-namespaces,
+-modernize-return-braced-init-list,
+-modernize-use-auto,
+-modernize-use-default-member-init,
+-modernize-use-using,
+-modernize-use-trailing-return-type,
+-modernize-use-nodiscard,
+performance-*,
+-performance-noexcept-move-constructor,
+-performance-unnecessary-value-param,
+'
+AnalyzeTemporaryDtors: false
+WarningsAsErrors: '*'
+CheckOptions:
+  - key:             readability-identifier-naming.ClassCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.EnumCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.FunctionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.MemberCase
+    value:           snake_case
+  - key:             readability-identifier-naming.MemberCase
+    value:           snake_case
+  - key:             readability-identifier-naming.ParameterCase
+    value:           snake_case
+  - key:             readability-identifier-naming.UnionCase
+    value:           CamelCase
+  - key:             readability-identifier-naming.VariableCase
+    value:           snake_case
+  - key:             readability-identifier-naming.IgnoreMainLikeFunctions
+    value:           1
+  - key:             readability-redundant-member-init.IgnoreBaseInCopyConstructors
+    value:           1
+  - key:             modernize-use-default-member-init.UseAssignment
+    value:           1
+  - key:             some-check.GlobalOption
+    value:           '1'
+  - key:             bugprone-easily-swappable-parameters.MinimumLength
+    value:           3
+    
