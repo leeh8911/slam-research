@@ -12,9 +12,14 @@
 
 #include <array>
 #include <filesystem>
+#include <fstream>
 #include <iostream> // to be removed
 #include <string>
+#include <unordered_map>
+#include <utility>
 #include <vector>
+
+#include <opencv2/core.hpp>
 
 namespace research::interface
 {
@@ -46,37 +51,117 @@ const auto GlobFiles = [](std::filesystem::path path) {
 DataLoader::DataLoader(std::string base, size_t sequence)
 {
     std::filesystem::path base_path = base;
-    base_path.append("dataset").append("sequences").append(ToString(sequence, 2));
+    base_path.append("sequences").append(ToString(sequence, 2));
 
-    cam0_files = GlobFiles(std::filesystem::path(base_path).append(cam0_name));
-    cam1_files = GlobFiles(std::filesystem::path(base_path).append(cam1_name));
-    cam2_files = GlobFiles(std::filesystem::path(base_path).append(cam2_name));
-    cam3_files = GlobFiles(std::filesystem::path(base_path).append(cam3_name));
-    velodyne_files = GlobFiles(std::filesystem::path(base_path).append(velodyne_name));
+    base_path_ = base_path;
+    cam0_files_ = GlobFiles(std::filesystem::path(base_path).append(cam0_name));
+    cam1_files_ = GlobFiles(std::filesystem::path(base_path).append(cam1_name));
+    cam2_files_ = GlobFiles(std::filesystem::path(base_path).append(cam2_name));
+    cam3_files_ = GlobFiles(std::filesystem::path(base_path).append(cam3_name));
+    velodyne_files_ = GlobFiles(std::filesystem::path(base_path).append(velodyne_name));
+
+    calibration_ = ReadCalibration(base_path_);
+}
+
+std::unordered_map<std::string, cv::Mat> DataLoader::Calibration()
+{
+    return calibration_;
 }
 
 size_t DataLoader::Cam0Size() const
 {
-    return cam0_files.size();
+    return cam0_files_.size();
 }
 
 size_t DataLoader::Cam1Size() const
 {
-    return cam1_files.size();
+    return cam1_files_.size();
 }
 
 size_t DataLoader::Cam2Size() const
 {
-    return cam2_files.size();
+    return cam2_files_.size();
 }
 
 size_t DataLoader::Cam3Size() const
 {
-    return cam3_files.size();
+    return cam3_files_.size();
 }
 
 size_t DataLoader::VelodyneSize() const
 {
-    return velodyne_files.size();
+    return velodyne_files_.size();
+}
+
+std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibration(std::filesystem::path base_path)
+{
+    auto file_data = ReadCalibrationFile(base_path);
+    std::unordered_map<std::string, cv::Mat> result{};
+
+    result["P_rect_00"] = file_data["P0"];
+    result["P_rect_01"] = file_data["P1"];
+    result["P_rect_02"] = file_data["P2"];
+    result["P_rect_03"] = file_data["P3"];
+
+    cv::Mat T1 = cv::Mat::eye(4, 4, CV_64F);
+    cv::Mat T2 = cv::Mat::eye(4, 4, CV_64F);
+    cv::Mat T3 = cv::Mat::eye(4, 4, CV_64F);
+
+    T1.at<double>(0, 3) = file_data["P1"].at<double>(0, 3) / file_data["P1"].at<double>(0, 0);
+    T2.at<double>(0, 3) = file_data["P2"].at<double>(0, 3) / file_data["P2"].at<double>(0, 0);
+    T3.at<double>(0, 3) = file_data["P3"].at<double>(0, 3) / file_data["P3"].at<double>(0, 0);
+
+    result["T_cam0_velo"] = file_data["Tr"];
+    cv::vconcat(result["T_cam0_velo"], cv::Mat1d(1, 4, std::vector<double>({0, 0, 0, 1}).data()).clone(),
+                result["T_cam0_velo"]);
+
+    result["T_cam1_velo"] = T1 * result["T_cam0_velo"];
+    result["T_cam2_velo"] = T2 * result["T_cam0_velo"];
+    result["T_cam3_velo"] = T3 * result["T_cam0_velo"];
+
+    result["K_cam0"] = file_data["P0"].colRange(0, 3).rowRange(0, 3);
+    result["K_cam1"] = file_data["P1"].colRange(0, 3).rowRange(0, 3);
+    result["K_cam2"] = file_data["P2"].colRange(0, 3).rowRange(0, 3);
+    result["K_cam3"] = file_data["P3"].colRange(0, 3).rowRange(0, 3);
+
+    cv::Mat p_cam = cv::Mat1d(4, 1, std::vector<double>({0, 0, 0, 1}).data()).clone();
+    cv::Mat p_velo0 = result["T_cam0_velo"].inv() * (p_cam);
+    cv::Mat p_velo1 = result["T_cam1_velo"].inv() * (p_cam);
+    cv::Mat p_velo2 = result["T_cam2_velo"].inv() * (p_cam);
+    cv::Mat p_velo3 = result["T_cam3_velo"].inv() * (p_cam);
+
+    result["b_gray"] = cv::Mat1d(1, 1, cv::norm(p_velo1 - p_velo0, 2));
+    result["b_rgb"] = cv::Mat1d(1, 1, cv::norm(p_velo3 - p_velo2, 2));
+
+    return result;
+}
+
+std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibrationFile(std::filesystem::path base_path)
+{
+    std::unordered_map<std::string, cv::Mat> result{};
+    std::ifstream fs;
+    fs.open(base_path.append("calib.txt"), std::ios::in);
+
+    std::string l1;
+    while (getline(fs, l1))
+    {
+        std::stringstream ss(l1);
+        std::string key;
+        ss >> key;
+        key.pop_back(); // remove ";"
+
+        std::vector<double> v;
+        v.reserve(12);
+
+        std::string value;
+        while (ss >> value)
+        {
+            v.emplace_back(std::atof(value.c_str()));
+        }
+        result.emplace(key, cv::Mat1d(3, 4, v.data()).clone());
+    }
+
+    fs.close();
+    return result;
 }
 } // namespace research::interface
