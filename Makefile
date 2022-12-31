@@ -1,12 +1,13 @@
 
 
-.PHONY: conan
-conan:
+.PHONY: conan_install
+conan_install:
+	mkdir build || \
 	cd build && \
 	conan install .. --build=missing -s build_type=Debug
 
 .PHONY: test
-test: conan
+test: conan_install
 	mkdir build || \
 	cd build && \
 	cmake ..&& \
@@ -14,7 +15,7 @@ test: conan
 	.\\bin\\CONAN_TEST_TEST.exe
 	
 .PHONY: run
-run: conan
+run: conan_install
 	mkdir build || \
 	cd build && \
 	cmake ..&& \

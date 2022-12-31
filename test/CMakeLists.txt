@@ -10,3 +10,4 @@ target_include_directories(${PROJECT_TEST} PUBLIC
                         ${CMAKE_SOURCE_DIR}
                         ${CONAN_INCLUDE_DIRS}
                         )
+target_compile_features(${PROJECT_TEST} PRIVATE cxx_std_17)

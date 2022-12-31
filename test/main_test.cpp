@@ -12,8 +12,11 @@
 int main(int argc, char **argv)
 {
     ::testing::InitGoogleTest(&argc, argv);
+    ::testing::GTEST_FLAG(filter) = "*:-*Integrate*";
 
 #ifndef TEST_ALL
+    ::testing::GTEST_FLAG(filter) = "*:-*Integrate*";
+#else
     ::testing::GTEST_FLAG(filter) = "*";
 #endif
     return RUN_ALL_TESTS();
