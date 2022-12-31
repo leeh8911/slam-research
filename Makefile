@@ -26,3 +26,10 @@ run: conan_install
 .PHONY: clean
 clean:
 	del .\\build /Q /f
+
+.PHONY: doc
+doc:
+	mkdir -p build
+	cd build && \
+	cmake -DOPTION_BUILD_DOCS=ON .. && \
+	make docs
