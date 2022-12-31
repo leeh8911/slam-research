@@ -16,21 +16,19 @@
 #include <unordered_map>
 #include <vector>
 
-#include <opencv2/core.hpp>
+#include "opencv2/core.hpp"
 
-namespace research::interface
-{
-struct FrameData
-{
+
+namespace research::interface {
+struct FrameData {
     cv::Mat cam0;
     cv::Mat cam1;
     cv::Mat cam2;
     cv::Mat cam3;
 };
 
-class DataLoader
-{
-  public:
+class DataLoader {
+ public:
     DataLoader(std::string base, size_t sequence);
 
     FrameData operator[](size_t index);
@@ -42,7 +40,7 @@ class DataLoader
     size_t Cam3Size() const;
     size_t VelodyneSize() const;
 
-  private:
+ private:
     std::unordered_map<std::string, cv::Mat> ReadCalibration(std::filesystem::path base_path);
     std::unordered_map<std::string, cv::Mat> ReadCalibrationFile(std::filesystem::path base_path);
 
@@ -55,6 +53,6 @@ class DataLoader
     std::vector<std::string> velodyne_files_{};
     std::unordered_map<std::string, cv::Mat> calibration_;
 };
-} // namespace research::interface
+}  // namespace research::interface
 
-#endif // SRC_DATALOADER_H_
+#endif  // SRC_DATALOADER_H_

@@ -8,17 +8,17 @@
 ///
 ///
 #include <iostream>
-#include <string>
-#include <vector>
-
-#include <opencv2/core.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/objdetect/objdetect.hpp>
+#include <string>
+#include <vector>
 
-int main(int argc, char **argv)
-{
-    using namespace std::string_literals; // NOLINT
+#include "opencv2/core.hpp"
+
+
+int main(int argc, char **argv) {
+    using namespace std::string_literals;  // NOLINT
     std::cout << "Hello world" << std::endl;
 
     const std::string image2_path =
@@ -54,24 +54,19 @@ int main(int argc, char **argv)
     matcher.match(descriptions2, descriptions3, matches);
 
     double max_dist = 0.0, min_dist = 1000.0;
-    for (size_t i = 0; i < matches.size(); ++i)
-    {
+    for (size_t i = 0; i < matches.size(); ++i) {
         double dist = matches[i].distance;
-        if (dist < min_dist)
-        {
+        if (dist < min_dist) {
             min_dist = dist;
         }
-        if (dist > max_dist)
-        {
+        if (dist > max_dist) {
             max_dist = dist;
         }
     }
 
     std::vector<cv::DMatch> good_matches;
-    for (size_t i = 0; i < matches.size(); ++i)
-    {
-        if (matches[i].distance < 10 * min_dist)
-        {
+    for (size_t i = 0; i < matches.size(); ++i) {
+        if (matches[i].distance < 10 * min_dist) {
             good_matches.push_back(matches[i]);
         }
     }

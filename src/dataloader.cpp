@@ -13,88 +13,65 @@
 #include <array>
 #include <filesystem>
 #include <fstream>
-#include <iostream> // to be removed
+#include <iostream>  // to be removed
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include <opencv2/core.hpp>
+#include "opencv2/core.hpp"
 
-namespace research::interface
-{
-const std::string cam0_name = "image_0";
-const std::string cam1_name = "image_1";
-const std::string cam2_name = "image_2";
-const std::string cam3_name = "image_3";
-const std::string velodyne_name = "velodyne";
+namespace research::interface {
+const std::string kCam0Name = "image_0";
+const std::string kCam1Name = "image_1";
+const std::string kCam2Name = "image_2";
+const std::string kCan3Name = "image_3";
+const std::string kVelodyneName = "velodyne";
 
-const auto ToString = [](size_t src, size_t pad_size) {
+const auto to_string = [](size_t src, size_t pad_size) {
     std::string result = std::to_string(src);
-    if (result.length() < pad_size)
-    {
+    if (result.length() < pad_size) {
         result = std::string(pad_size - result.length(), '0') + result;
     }
     return result;
 };
 
-const auto GlobFiles = [](std::filesystem::path path) {
+const auto glob_files = [](std::filesystem::path path) {
     std::vector<std::string> result{};
 
-    for (const auto &entry : std::filesystem::directory_iterator(path))
-    {
+    for (const auto &entry : std::filesystem::directory_iterator(path)) {
         result.emplace_back(entry.path().string());
     }
     return result;
 };
 
-DataLoader::DataLoader(std::string base, size_t sequence)
-{
+DataLoader::DataLoader(std::string base, size_t sequence) {
     std::filesystem::path base_path = base;
-    base_path.append("sequences").append(ToString(sequence, 2));
+    base_path.append("sequences").append(to_string(sequence, 2));
 
     base_path_ = base_path;
-    cam0_files_ = GlobFiles(std::filesystem::path(base_path).append(cam0_name));
-    cam1_files_ = GlobFiles(std::filesystem::path(base_path).append(cam1_name));
-    cam2_files_ = GlobFiles(std::filesystem::path(base_path).append(cam2_name));
-    cam3_files_ = GlobFiles(std::filesystem::path(base_path).append(cam3_name));
-    velodyne_files_ = GlobFiles(std::filesystem::path(base_path).append(velodyne_name));
+    cam0_files_ = glob_files(std::filesystem::path(base_path).append(kCam0Name));
+    cam1_files_ = glob_files(std::filesystem::path(base_path).append(kCam1Name));
+    cam2_files_ = glob_files(std::filesystem::path(base_path).append(kCam2Name));
+    cam3_files_ = glob_files(std::filesystem::path(base_path).append(kCan3Name));
+    velodyne_files_ = glob_files(std::filesystem::path(base_path).append(kVelodyneName));
 
     calibration_ = ReadCalibration(base_path_);
 }
 
-std::unordered_map<std::string, cv::Mat> DataLoader::Calibration()
-{
-    return calibration_;
-}
+std::unordered_map<std::string, cv::Mat> DataLoader::Calibration() { return calibration_; }
 
-size_t DataLoader::Cam0Size() const
-{
-    return cam0_files_.size();
-}
+size_t DataLoader::Cam0Size() const { return cam0_files_.size(); }
 
-size_t DataLoader::Cam1Size() const
-{
-    return cam1_files_.size();
-}
+size_t DataLoader::Cam1Size() const { return cam1_files_.size(); }
 
-size_t DataLoader::Cam2Size() const
-{
-    return cam2_files_.size();
-}
+size_t DataLoader::Cam2Size() const { return cam2_files_.size(); }
 
-size_t DataLoader::Cam3Size() const
-{
-    return cam3_files_.size();
-}
+size_t DataLoader::Cam3Size() const { return cam3_files_.size(); }
 
-size_t DataLoader::VelodyneSize() const
-{
-    return velodyne_files_.size();
-}
+size_t DataLoader::VelodyneSize() const { return velodyne_files_.size(); }
 
-std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibration(std::filesystem::path base_path)
-{
+std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibration(std::filesystem::path base_path) {
     auto file_data = ReadCalibrationFile(base_path);
     std::unordered_map<std::string, cv::Mat> result{};
 
@@ -136,26 +113,23 @@ std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibration(std::filesy
     return result;
 }
 
-std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibrationFile(std::filesystem::path base_path)
-{
+std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibrationFile(std::filesystem::path base_path) {
     std::unordered_map<std::string, cv::Mat> result{};
     std::ifstream fs;
     fs.open(base_path.append("calib.txt"), std::ios::in);
 
     std::string l1;
-    while (getline(fs, l1))
-    {
+    while (getline(fs, l1)) {
         std::stringstream ss(l1);
         std::string key;
         ss >> key;
-        key.pop_back(); // remove ";"
+        key.pop_back();  // remove ";"
 
         std::vector<double> v;
         v.reserve(12);
 
         std::string value;
-        while (ss >> value)
-        {
+        while (ss >> value) {
             v.emplace_back(std::atof(value.c_str()));
         }
         result.emplace(key, cv::Mat1d(3, 4, v.data()).clone());
@@ -164,4 +138,4 @@ std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibrationFile(std::fi
     fs.close();
     return result;
 }
-} // namespace research::interface
+}  // namespace research::interface

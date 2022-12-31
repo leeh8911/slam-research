@@ -15,10 +15,8 @@
 #include <iostream>
 #include <unordered_map>
 
-namespace research::interface::test
-{
-TEST(DataLoaderTest, LoadSequence00Case)
-{
+namespace research::interface::test {
+TEST(DataLoaderTest, LoadSequence00Case) {
     DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
 
     EXPECT_EQ(4541, dataloader.Cam0Size());
@@ -28,11 +26,8 @@ TEST(DataLoaderTest, LoadSequence00Case)
     EXPECT_EQ(4541, dataloader.VelodyneSize());
 }
 
-TEST(DataLoaderIntegrateTest, LoadSequenceAllCase)
-{
-    for (size_t seq_index = 0; seq_index <= 21; ++seq_index)
-    {
-
+TEST(DataLoaderIntegrateTest, LoadSequenceAllCase) {
+    for (size_t seq_index = 0; seq_index <= 21; ++seq_index) {
         DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", seq_index);
 
         EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam1Size());
@@ -42,15 +37,12 @@ TEST(DataLoaderIntegrateTest, LoadSequenceAllCase)
     }
 }
 
-TEST(DataLoaderTest, CalibrationCase)
-{
+TEST(DataLoaderTest, CalibrationCase) {
     DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
 
     auto calib_map = dataloader.Calibration();
 
-    for (const auto &p : calib_map)
-    {
-        std::cout << p.first << ": \n" << p.second << "\n";
-    }
+    EXPECT_EQ(0.5417205509475317, calib_map["b_gray"].dot(1));
+    EXPECT_EQ(0.5368457017809494, calib_map["b_rgb"].dot(1));
 }
-} // namespace research::interface::test
+}  // namespace research::interface::test

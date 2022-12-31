@@ -20,16 +20,19 @@ if (OPTION_TEST_ALL)
 add_compile_definitions(TEST_ALL)
 endif(OPTION_TEST_ALL)
 
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
 
 if(OPTION_BUILD_DOCS)
 message(STATUS "Build only documentation")
 add_subdirectory(docs)
 else()
 message(STATUS "Build source and test files")
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 add_subdirectory(src)
 add_subdirectory(test)
+
 add_dependencies(${PROJECT_EXE} ${PROJECT_LIB})
 add_dependencies(${PROJECT_TEST} ${PROJECT_LIB})
 endif()

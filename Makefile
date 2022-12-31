@@ -6,6 +6,13 @@ conan_install:
 	cd build && \
 	conan install .. --build=missing -s build_type=Debug
 
+.PHONY: build
+build: conan_install
+	mkdir build || \
+	cd build && \
+	cmake ..&& \
+	cmake --build .
+	
 .PHONY: test
 test: conan_install
 	mkdir build || \

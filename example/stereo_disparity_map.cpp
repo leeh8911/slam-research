@@ -9,17 +9,17 @@
 ///
 
 #include <iostream>
-#include <string>
-
 #include <opencv2/calib3d.hpp>
-#include <opencv2/core.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgproc.hpp>
+#include <string>
+
+#include "opencv2/core.hpp"
+
 
 void StereoDepthMap();
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     std::cout << "Hello world\n";
 
     StereoDepthMap();
@@ -27,8 +27,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void StereoDepthMap()
-{
+void StereoDepthMap() {
     int num_disparity = 8;
     int block_size = 5;
     std::string left_image_name =
@@ -38,7 +37,7 @@ void StereoDepthMap()
 
     cv::Mat left = cv::imread(left_image_name);
     cv::Mat right = cv::imread(right_image_name);
-    cv::Mat disp, disparity; // Disparity
+    cv::Mat disp, disparity;  // Disparity
     std::string disparity_window = "disparity";
 
     cv::Ptr<cv::StereoSGBM> stereo = cv::StereoSGBM::create();
