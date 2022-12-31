@@ -1,1 +1,7 @@
-BasedOnStyle: Microsoft
+BasedOnStyle: Google
+IndentWidth: 4
+AccessModifierOffset : -3
+UseTab: Never
+ColumnLimit: 120
+AlignEscapedNewlines: Right
+AllowShortBlocksOnASingleLine: Never
