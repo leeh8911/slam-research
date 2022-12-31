@@ -5,7 +5,7 @@ on:
   repository_dispatch:
   push:
     branches:
-      - main
+      - master
       - gh-pages
 
 # In that case do the job 'make_and_deploy_doxygen'
