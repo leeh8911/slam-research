@@ -21,6 +21,14 @@ test: conan_install
 	cmake --build . &&\
 	.\\bin\\CONAN_TEST_TEST.exe
 	
+.PHONY: test_all
+test_all: conan_install
+	mkdir build || \
+	cd build && \
+	cmake .. -DOPTION_TEST_ALL=TRUE && \
+	cmake --build . &&\
+	.\\bin\\CONAN_TEST_TEST.exe
+	
 .PHONY: run
 run: conan_install
 	mkdir build || \

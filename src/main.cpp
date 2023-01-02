@@ -9,18 +9,21 @@
 ///
 
 #include <iostream>
-#include <opencv2/calib3d.hpp>
-#include <opencv2/highgui.hpp>
-#include <opencv2/imgproc.hpp>
 #include <string>
 
 #include "opencv2/core.hpp"
-
+#include "src/dataloader.h"
+#include "src/visualizer.h"
 
 void StereoDepthMap();
 
 int main(int argc, char **argv) {
-    std::cout << "Hello world\n";
+    research::interface::DataLoader dl("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
+    research::visualizer::Visualizer viz;
+
+    viz.Update(dl[0]);
+
+    cv::waitKey(0);
 
     return 0;
 }
