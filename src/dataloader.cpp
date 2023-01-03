@@ -127,6 +127,7 @@ CalibrationData DataLoader::ReadCalibration(std::filesystem::path base_path) {
     result["P_rect_01"] = file_data["P1"];
     result["P_rect_02"] = file_data["P2"];
     result["P_rect_03"] = file_data["P3"];
+    result["Tr"] = file_data["Tr"];
 
     cv::Mat T1 = cv::Mat::eye(4, 4, CV_64F);
     cv::Mat T2 = cv::Mat::eye(4, 4, CV_64F);

@@ -24,8 +24,8 @@ namespace research::visualizer {
 Visualizer::Visualizer() { cv::namedWindow(kMainWindowName); }
 Visualizer::~Visualizer() { cv::destroyWindow(kMainWindowName); }
 
-cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, const cv::Mat& P,
-                const cv::Mat& vel_to_img) {
+cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, const cv::Mat& cam_instrinsic,
+                const cv::Mat& lidar_to_cam) {
     cv::Mat result = image.clone();
 
     std::vector<cv::Point2d> projected{};
@@ -36,7 +36,7 @@ cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, c
     // cv::Mat rvec(3, 3, cv::DataType<double>::type);          // rotation matrix
     // cv::Mat Thomogeneous(4, 1, cv::DataType<double>::type);  // translation vector
 
-    cv::decomposeProjectionMatrix(P, K, rvec, Thomogeneous);
+    cv::decomposeProjectionMatrix(lidar_to_cam, K, rvec, Thomogeneous);
 
     cv::Mat T(3, 1, cv::DataType<double>::type);  // translation vector
     cv::convertPointsFromHomogeneous(Thomogeneous.reshape(4, 1), T);
