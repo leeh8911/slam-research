@@ -16,6 +16,7 @@
 
 #include "opencv2/core.hpp"
 #include "src/dataloader.h"
+#include "src/timer.h"
 #include "src/visualizer.h"
 
 int main(int argc, char **argv) {
@@ -24,19 +25,20 @@ int main(int argc, char **argv) {
     using std::chrono::system_clock;
 
     research::inf::DataLoader dl("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
-    research::visualizer::Visualizer viz;
+    research::viz::Visualizer gui;
 
     size_t index = 0;
     size_t max_step = dl.TimeSize() - 1;
 
     while (index < max_step) {
+        TIMER();
         auto start = system_clock::now();
 
-        viz.Update(dl[index]);
+        gui.Update(dl[index]);
 
         auto time_rest = static_cast<size_t>((dl.Timestamps()[index + 1] - dl.Timestamps()[index]) * 1000.);
         if (time_rest > 0) {
-            cv::waitKey(time_rest);
+            cv::waitKey(static_cast<int>(time_rest));
         }
 
         index++;

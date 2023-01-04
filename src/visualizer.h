@@ -17,16 +17,16 @@
 #include "opencv2/highgui.hpp"
 #include "src/dataloader.h"
 
-namespace research::visualizer {
+namespace research::viz {
 class Visualizer {
  public:
     Visualizer();
     ~Visualizer();
 
-    void Update(const inf::FrameData& frame) const;
+    void Update(inf::FrameData& frame) const;
 
  private:
     const std::string kMainWindowName = "Main Window";
 };
-}  // namespace research::visualizer
+}  // namespace research::viz
 #endif  // SRC_VISUALIZER_H_

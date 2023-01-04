@@ -20,44 +20,46 @@
 #include "opencv2/highgui.hpp"
 #include "opencv2/imgproc.hpp"
 #include "src/dataloader.h"
+#include "src/timer.h"
 
-namespace research::visualizer {
+namespace research::viz {
 
 Visualizer::Visualizer() { cv::namedWindow(kMainWindowName); }
 Visualizer::~Visualizer() { cv::destroyWindow(kMainWindowName); }
 
-inf::PointCloud SamplingPointCloud(const inf::PointCloud& pc, double prob) {
-    inf::PointCloud result{};
+inf::PointCloud* SamplingPointCloud(inf::PointCloud* pc, double prob) {
+    TIMER();
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    result.reserve(static_cast<size_t>(static_cast<double>(pc.size()) * prob));
+    pc->erase(std::remove_if(std::begin(*pc), std::end(*pc),
+                             [&prob](const cv::Point3d& src) {
+                                 return (static_cast<double>(std::rand() % 10000) / 10000.0 <= prob);
+                             }),
+              std::end(*pc));
 
-    std::copy_if(std::begin(pc), std::end(pc), std::back_inserter(result), [&prob](const cv::Point3d& src) {
-        return (static_cast<double>(std::rand() % 10000) / 10000.0 <= prob);
-    });
-
-    return result;
+    return pc;
 }
-cv::Mat Project(const cv::Mat& image, const inf::PointCloud& pointcloud, const domain::Calibration& calibration) {
-    cv::Mat result = image.clone();
-    inf::PointCloud input_points = SamplingPointCloud(pointcloud, 0.5);
+
+cv::Mat* Project(cv::Mat* image, inf::PointCloud* pointcloud, domain::Calibration* calibration) {
+    TIMER();
+    pointcloud = SamplingPointCloud(pointcloud, 0.5);
 
     std::vector<cv::Point2d> projected;
-    projected.reserve(input_points.size());
+    projected.reserve(pointcloud->size());
 
-    cv::projectPoints(input_points, calibration.Rotation(), calibration.Translation(), calibration.Intrinsic(),
-                      calibration.Distortion(), projected);
+    cv::projectPoints(*pointcloud, calibration->Rotation(), calibration->Translation(), calibration->Intrinsic(),
+                      calibration->Distortion(), projected);
 
     for (const auto& p : projected) {
-        cv::circle(result, p, 1, cv::Scalar(0, 0, 255), 1, cv::LineTypes::LINE_AA);
+        cv::circle(*image, p, 1, cv::Scalar(0, 0, 255), 1, cv::LineTypes::LINE_AA);
     }
 
-    return result;
+    return image;
 }
 
-void Visualizer::Update(const inf::FrameData& frame_data) const {
-    cv::Mat img = Project(frame_data.cam_list_[2], frame_data.pointcloud_, frame_data.calib_list_[2]);
+void Visualizer::Update(inf::FrameData& frame_data) const {
+    cv::Mat* img = Project(&(frame_data.cam_list_[2]), &(frame_data.pointcloud_), &(frame_data.calib_list_[2]));
 
-    cv::imshow(kMainWindowName, img);
+    cv::imshow(kMainWindowName, *img);
 }
-}  // namespace research::visualizer
+}  // namespace research::viz

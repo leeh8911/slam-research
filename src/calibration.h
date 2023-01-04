@@ -26,6 +26,9 @@ class Calibration {
     cv::Mat Intrinsic() const;
     cv::Mat Distortion() const;
 
+    // TODO(sangwon): calibrate point cloud into image responsibility is belong to "Calibration class"
+    //  cv::Mat& operator()(cv::Mat& img);
+
  private:
     cv::Mat rotation_vector_{};
     cv::Mat translation_vector_{};
