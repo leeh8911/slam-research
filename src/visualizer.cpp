@@ -24,30 +24,27 @@ namespace research::visualizer {
 Visualizer::Visualizer() { cv::namedWindow(kMainWindowName); }
 Visualizer::~Visualizer() { cv::destroyWindow(kMainWindowName); }
 
-cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, const cv::Mat& cam_instrinsic,
-                const cv::Mat& lidar_to_cam) {
+cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, const cv::Mat& transformation) {
     cv::Mat result = image.clone();
 
     std::vector<cv::Point2d> projected{};
     projected.reserve(pointcloud.size());
 
-    cv::Mat K, rvec, Thomogeneous;
-    // cv::Mat K(3, 3, cv::DataType<double>::type);             // intrinsic parameter matrix
-    // cv::Mat rvec(3, 3, cv::DataType<double>::type);          // rotation matrix
-    // cv::Mat Thomogeneous(4, 1, cv::DataType<double>::type);  // translation vector
+    cv::Mat intrinsic(3, 3, cv::DataType<double>::type);
+    cv::Mat rotation(3, 3, cv::DataType<double>::type);
+    cv::Mat translation_homo(4, 1, cv::DataType<double>::type);
 
-    cv::decomposeProjectionMatrix(lidar_to_cam, K, rvec, Thomogeneous);
+    cv::decomposeProjectionMatrix(transformation, intrinsic, rotation, translation_homo);
 
-    cv::Mat T(3, 1, cv::DataType<double>::type);  // translation vector
-    cv::convertPointsFromHomogeneous(Thomogeneous.reshape(4, 1), T);
+    cv::Mat translation(3, 1, cv::DataType<double>::type);  // translation vector
+    cv::convertPointsFromHomogeneous(translation_homo.reshape(4, 1), translation);
 
-    cv::Mat distortion = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
+    cv::Mat no_distortion = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
 
-    cv::Mat rvecR(3, 1, cv::DataType<double>::type);  // rodrigues rotation matrix
-    cv::Rodrigues(rvec, rvecR);
+    cv::Mat rotation_vector(3, 1, cv::DataType<double>::type);  // rodrigues rotation matrix
+    cv::Rodrigues(rotation, rotation_vector);
 
-    cv::projectPoints(pointcloud, rvecR, T, K, distortion, projected);
-
+    cv::projectPoints(pointcloud, rotation_vector, translation, intrinsic, no_distortion, projected);
     for (const auto& p : projected) {
     }
 
