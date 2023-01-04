@@ -8,6 +8,9 @@
 ///
 ///
 
+#include <Windows.h>
+
+#include <chrono>
 #include <iostream>
 #include <string>
 
@@ -15,13 +18,29 @@
 #include "src/dataloader.h"
 #include "src/visualizer.h"
 
-void StereoDepthMap();
-
 int main(int argc, char **argv) {
-    research::interface::DataLoader dl("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
+    using std::chrono::duration_cast;
+    using std::chrono::milliseconds;
+    using std::chrono::system_clock;
+
+    research::inf::DataLoader dl("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
     research::visualizer::Visualizer viz;
 
-    viz.Update(dl[0]);
+    size_t index = 0;
+    size_t max_step = dl.TimeSize() - 1;
+
+    while (index < max_step) {
+        auto start = system_clock::now();
+
+        viz.Update(dl[index]);
+
+        auto time_rest = static_cast<size_t>((dl.Timestamps()[index + 1] - dl.Timestamps()[index]) * 1000.);
+        if (time_rest > 0) {
+            cv::waitKey(time_rest);
+        }
+
+        index++;
+    }
 
     cv::waitKey(0);
 

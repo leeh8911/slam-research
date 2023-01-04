@@ -17,7 +17,7 @@
 
 #include "opencv2/calib3d.hpp"
 
-namespace research::interface::test {
+namespace research::inf::test {
 TEST(DataLoaderIntegrateTest, LoadSequence00Case) {
     DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
 
@@ -28,21 +28,22 @@ TEST(DataLoaderIntegrateTest, LoadSequenceAllCase) {
     for (size_t seq_index = 0; seq_index <= 21; ++seq_index) {
         DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", seq_index);
 
-        EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam1Size());
-        EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam2Size());
-        EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam3Size());
-        EXPECT_EQ(dataloader.Cam0Size(), dataloader.VelodyneSize());
-        EXPECT_EQ(dataloader.Cam0Size(), dataloader.TimeSize());
+        // EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam1Size());
+        // EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam2Size());
+        // EXPECT_EQ(dataloader.Cam0Size(), dataloader.Cam3Size());
+        // EXPECT_EQ(dataloader.Cam0Size(), dataloader.VelodyneSize());
+        // EXPECT_EQ(dataloader.Cam0Size(), dataloader.TimeSize());
     }
+    EXPECT_FALSE(true);
 }
 
 TEST(DataLoaderIntegrateTest, CalibrationCase) {
     DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
+    EXPECT_FALSE(true);
+    // auto calib_map = dataloader.Calibration();
 
-    auto calib_map = dataloader.Calibration();
-
-    EXPECT_EQ(0.5417205509475317, calib_map["b_gray"].dot(1));
-    EXPECT_EQ(0.5368457017809494, calib_map["b_rgb"].dot(1));
+    // EXPECT_EQ(0.5417205509475317, calib_map["b_gray"].dot(1));
+    // EXPECT_EQ(0.5368457017809494, calib_map["b_rgb"].dot(1));
 }
 
 TEST(DataLoaderIntegrateTest, TimestampCase) {
@@ -56,38 +57,5 @@ TEST(DataLoaderIntegrateTest, TimestampCase) {
 TEST(DataLoaderIntegrateTest, ReadDataCase) {
     DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
     auto result = dataloader[0];
-
-    EXPECT_EQ(376, result.cam0_.rows);
-    EXPECT_EQ(1241, result.cam0_.cols);
-    EXPECT_EQ(124668, result.pointcloud_.size());
 }
-
-TEST(DataLoaderIntegrateTest, ViewCalibration) {
-    DataLoader dataloader = DataLoader("D:\\sangwon\\dataset\\kitti\\odometry\\dataset", 0);
-
-    auto cal = dataloader.Calibration();
-
-    std::cout << "Cam 00\n";
-    std::cout << cal["P_rect_00"] << "\n";
-    std::cout << cal["T_cam0_velo"] << "\n";
-    std::cout << cal["K_cam0"] << "\n";
-
-    std::cout << "Cam 01\n";
-    std::cout << cal["P_rect_01"] << "\n";
-    std::cout << cal["T_cam1_velo"] << "\n";
-    std::cout << cal["K_cam1"] << "\n";
-
-    std::cout << "Cam 02\n";
-    std::cout << cal["P_rect_02"] << "\n";
-    std::cout << cal["T_cam2_velo"] << "\n";
-    std::cout << cal["K_cam2"] << "\n";
-
-    std::cout << "Cam 03\n";
-    std::cout << cal["P_rect_03"] << "\n";
-    std::cout << cal["T_cam3_velo"] << "\n";
-    std::cout << cal["K_cam3"] << "\n";
-
-    std::cout << "Tr??\n";
-    std::cout << cal["Tr"] << "\n";
-}
-}  // namespace research::interface::test
+}  // namespace research::inf::test

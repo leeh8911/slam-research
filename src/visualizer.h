@@ -23,7 +23,7 @@ class Visualizer {
     Visualizer();
     ~Visualizer();
 
-    void Update(const interface::FrameData& frame) const;
+    void Update(const inf::FrameData& frame) const;
 
  private:
     const std::string kMainWindowName = "Main Window";

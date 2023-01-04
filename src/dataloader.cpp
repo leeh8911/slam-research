@@ -27,10 +27,10 @@
 #include "opencv2/imgcodecs.hpp"
 #include "src/calibration.h"
 
-namespace research::interface {
+namespace research::inf {
 FrameData::FrameData(const std::array<cv::Mat, 4>& cam_list, const PointCloud& pointcloud,
-                     const Calibration& calibration)
-    : cam_list_(cam_list), pointcloud_(pointcloud), calibration_{calibration} {}
+                     const std::array<Calibration, 4>& calib_list)
+    : cam_list_(cam_list), pointcloud_(pointcloud), calib_list_{calib_list} {}
 
 const std::array<std::string, 4> DataLoader::kCamNames = {"image_0", "image_1", "image_2", "image_3"};
 const std::string DataLoader::kVelodyneName = "velodyne";
@@ -61,10 +61,11 @@ DataLoader::DataLoader(std::string base, size_t sequence)
     velodyne_files_ = GlobFiles(std::filesystem::path(base_path_).append(kVelodyneName));
 
     auto calibration_map = ReadCalibrationFile(base_path_);
-    calibration_list_[0] = Calibration(calibration_map);
-    calibration_list_[1] = Calibration(calibration_map);
-    calibration_list_[2] = Calibration(calibration_map);
-    calibration_list_[3] = Calibration(calibration_map);
+    calibration_list_[0] = Calibration(calibration_map["P0"], calibration_map["Tr"]);
+    calibration_list_[1] = Calibration(calibration_map["P1"], calibration_map["Tr"]);
+    calibration_list_[2] = Calibration(calibration_map["P2"], calibration_map["Tr"]);
+    calibration_list_[3] = Calibration(calibration_map["P3"], calibration_map["Tr"]);
+
     timestamps_ = ReadTimestamp(base_path_);
 }
 
@@ -91,7 +92,7 @@ FrameData DataLoader::operator[](size_t index) {
                       cv::imread(cam_files_[1][index].string().c_str(), cv::ImreadModes::IMREAD_GRAYSCALE),
                       cv::imread(cam_files_[2][index].string().c_str(), cv::ImreadModes::IMREAD_COLOR),
                       cv::imread(cam_files_[3][index].string().c_str(), cv::ImreadModes::IMREAD_COLOR)},
-                     ReadPointCloud(velodyne_files_[index]), calibration_);
+                     ReadPointCloud(velodyne_files_[index]), calibration_list_);
 }
 
 std::vector<double> DataLoader::Timestamps() { return timestamps_; }
@@ -136,4 +137,4 @@ std::unordered_map<std::string, cv::Mat> DataLoader::ReadCalibrationFile(std::fi
     fs.close();
     return result;
 }
-}  // namespace research::interface
+}  // namespace research::inf

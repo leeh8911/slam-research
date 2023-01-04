@@ -11,6 +11,8 @@
 #include "src/visualizer.h"
 
 #include <algorithm>
+#include <cstdlib>
+#include <ctime>
 #include <vector>
 
 #include "opencv2/calib3d/calib3d.hpp"
@@ -24,47 +26,38 @@ namespace research::visualizer {
 Visualizer::Visualizer() { cv::namedWindow(kMainWindowName); }
 Visualizer::~Visualizer() { cv::destroyWindow(kMainWindowName); }
 
-cv::Mat Project(const cv::Mat& image, const interface::PointCloud& pointcloud, const cv::Mat& transformation) {
+inf::PointCloud SamplingPointCloud(const inf::PointCloud& pc, double prob) {
+    inf::PointCloud result{};
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    result.reserve(static_cast<size_t>(static_cast<double>(pc.size()) * prob));
+
+    std::copy_if(std::begin(pc), std::end(pc), std::back_inserter(result), [&prob](const cv::Point3d& src) {
+        return (static_cast<double>(std::rand() % 10000) / 10000.0 <= prob);
+    });
+
+    return result;
+}
+cv::Mat Project(const cv::Mat& image, const inf::PointCloud& pointcloud, const domain::Calibration& calibration) {
     cv::Mat result = image.clone();
+    inf::PointCloud input_points = SamplingPointCloud(pointcloud, 0.5);
 
-    std::vector<cv::Point2d> projected{};
-    projected.reserve(pointcloud.size());
+    std::vector<cv::Point2d> projected;
+    projected.reserve(input_points.size());
 
-    cv::Mat intrinsic(3, 3, cv::DataType<double>::type);
-    cv::Mat rotation(3, 3, cv::DataType<double>::type);
-    cv::Mat translation_homo(4, 1, cv::DataType<double>::type);
+    cv::projectPoints(input_points, calibration.Rotation(), calibration.Translation(), calibration.Intrinsic(),
+                      calibration.Distortion(), projected);
 
-    cv::decomposeProjectionMatrix(transformation, intrinsic, rotation, translation_homo);
-
-    cv::Mat translation(3, 1, cv::DataType<double>::type);  // translation vector
-    cv::convertPointsFromHomogeneous(translation_homo.reshape(4, 1), translation);
-
-    cv::Mat no_distortion = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
-
-    cv::Mat rotation_vector(3, 1, cv::DataType<double>::type);  // rodrigues rotation matrix
-    cv::Rodrigues(rotation, rotation_vector);
-
-    cv::projectPoints(pointcloud, rotation_vector, translation, intrinsic, no_distortion, projected);
     for (const auto& p : projected) {
+        cv::circle(result, p, 1, cv::Scalar(0, 0, 255), 1, cv::LineTypes::LINE_AA);
     }
 
     return result;
 }
 
-void Visualizer::Update(const interface::FrameData& frame_data) const {
-    cv::Mat gray_view;
-    cv::Mat project_cam0 =
-        Project(frame_data.cam0_, frame_data.pointcloud_, frame_data.calibration_.find("P_rect_00")->second,
-                frame_data.calibration_.find("T_cam0_velo")->second);
-    cv::hconcat(frame_data.cam0_, frame_data.cam1_, gray_view);
-    cv::cvtColor(gray_view, gray_view, cv::COLOR_GRAY2RGB);
+void Visualizer::Update(const inf::FrameData& frame_data) const {
+    cv::Mat img = Project(frame_data.cam_list_[2], frame_data.pointcloud_, frame_data.calib_list_[2]);
 
-    cv::Mat rgb_view;
-    cv::hconcat(frame_data.cam2_, frame_data.cam3_, rgb_view);
-
-    cv::Mat view;
-    cv::vconcat(gray_view, rgb_view, view);
-
-    cv::imshow(kMainWindowName, view);
+    cv::imshow(kMainWindowName, img);
 }
 }  // namespace research::visualizer

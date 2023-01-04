@@ -18,9 +18,19 @@
 namespace research::domain {
 class Calibration {
  public:
+    Calibration() = default;
     Calibration(const cv::Mat& P, const cv::Mat& Tr);
 
+    cv::Mat Rotation() const;
+    cv::Mat Translation() const;
+    cv::Mat Intrinsic() const;
+    cv::Mat Distortion() const;
+
  private:
+    cv::Mat rotation_vector_{};
+    cv::Mat translation_vector_{};
+    cv::Mat intrinsic_{};
+    cv::Mat distortion_{};
 };
 }  // namespace research::domain
 

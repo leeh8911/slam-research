@@ -20,16 +20,18 @@
 #include "opencv2/core.hpp"
 #include "src/calibration.h"
 
-namespace research::interface {
+namespace research::inf {
 
 using PointCloud = std::vector<cv::Point3d>;
 using Calibration = domain::Calibration;
 
 struct FrameData {
-    FrameData(const std::array<cv::Mat, 4>& cam_list, const PointCloud& pointcloud, const Calibration& calibration);
+    FrameData() = default;
+    FrameData(const std::array<cv::Mat, 4>& cam_list, const PointCloud& pointcloud,
+              const std::array<Calibration, 4>& calib_list);
     std::array<cv::Mat, 4> cam_list_{};
-    PointCloud pointcloud_;
-    Calibration calibration_;
+    PointCloud pointcloud_{};
+    std::array<Calibration, 4> calib_list_{};
 };
 
 using FileList = std::vector<std::filesystem::path>;
@@ -59,6 +61,6 @@ class DataLoader {
     static const std::array<std::string, 4> kCamNames;
     static const std::string kVelodyneName;
 };
-}  // namespace research::interface
+}  // namespace research::inf
 
 #endif  // SRC_DATALOADER_H_
