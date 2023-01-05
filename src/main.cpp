@@ -31,7 +31,6 @@ int main(int argc, char **argv) {
     size_t max_step = dl.TimeSize() - 1;
 
     while (index < max_step) {
-        TIMER();
         auto start = system_clock::now();
 
         gui.Update(dl[index]);
