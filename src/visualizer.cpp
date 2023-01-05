@@ -40,16 +40,18 @@ inf::PointCloud* SamplingPointCloud(inf::PointCloud* pc, double prob) {
 }
 
 cv::Mat* Project(cv::Mat* image, inf::PointCloud* pointcloud, domain::Calibration* calibration) {
-    pointcloud = SamplingPointCloud(pointcloud, 0.5);
+    pointcloud = SamplingPointCloud(pointcloud, 0.3);
 
     std::vector<cv::Point2d> projected;
     projected.reserve(pointcloud->size());
 
     cv::projectPoints(*pointcloud, calibration->Rotation(), calibration->Translation(), calibration->Intrinsic(),
                       calibration->Distortion(), projected);
-
-    for (const auto& p : projected) {
-        cv::circle(*image, p, 1, cv::Scalar(0, 0, 255), 1, cv::LineTypes::LINE_AA);
+    auto p_it = std::begin(projected);
+    auto pc_it = std::begin(*pointcloud);
+    for (; p_it != std::end(projected); ++p_it, ++pc_it) {
+        int range = static_cast<int>((100.0 / cv::norm(*pc_it) / 5.0));
+        cv::circle(*image, *p_it, 1, cv::Scalar(0, 0, 255), range, cv::LineTypes::LINE_AA);
     }
 
     return image;

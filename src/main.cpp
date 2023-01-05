@@ -8,8 +8,6 @@
 ///
 ///
 
-#include <Windows.h>
-
 #include <chrono>
 #include <iostream>
 #include <string>
