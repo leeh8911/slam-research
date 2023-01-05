@@ -28,7 +28,6 @@ Visualizer::Visualizer() { cv::namedWindow(kMainWindowName); }
 Visualizer::~Visualizer() { cv::destroyWindow(kMainWindowName); }
 
 inf::PointCloud* SamplingPointCloud(inf::PointCloud* pc, double prob) {
-    TIMER();
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
 
     pc->erase(std::remove_if(std::begin(*pc), std::end(*pc),
@@ -41,7 +40,6 @@ inf::PointCloud* SamplingPointCloud(inf::PointCloud* pc, double prob) {
 }
 
 cv::Mat* Project(cv::Mat* image, inf::PointCloud* pointcloud, domain::Calibration* calibration) {
-    TIMER();
     pointcloud = SamplingPointCloud(pointcloud, 0.5);
 
     std::vector<cv::Point2d> projected;

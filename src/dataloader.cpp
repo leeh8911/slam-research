@@ -89,7 +89,6 @@ PointCloud ReadPointCloud(std::filesystem::path file_path) {
 }
 
 FrameData DataLoader::operator[](size_t index) {
-    TIMER();
     return FrameData({cv::imread(cam_files_[0][index].string().c_str(), cv::ImreadModes::IMREAD_GRAYSCALE),
                       cv::imread(cam_files_[1][index].string().c_str(), cv::ImreadModes::IMREAD_GRAYSCALE),
                       cv::imread(cam_files_[2][index].string().c_str(), cv::ImreadModes::IMREAD_COLOR),
