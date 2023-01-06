@@ -11,6 +11,8 @@
 #ifndef SRC_CALIBRATION_H_
 #define SRC_CALIBRATION_H_
 
+#include <tuple>
+
 #include "opencv2/calib3d/calib3d.hpp"
 #include "opencv2/core.hpp"
 #include "opencv2/imgcodecs.hpp"
@@ -30,6 +32,7 @@ class Calibration {
     //  cv::Mat& operator()(cv::Mat& img);
 
  private:
+    std::tuple<cv::Mat, cv::Mat, cv::Mat> DecomposeProjectionMatrix(const cv::Mat& transform);
     cv::Mat rotation_vector_{};
     cv::Mat translation_vector_{};
     cv::Mat intrinsic_{};

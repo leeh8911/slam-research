@@ -11,6 +11,7 @@
 #include "src/calibration.h"
 
 #include <iostream>
+#include <tuple>
 #include <vector>
 
 #include "opencv2/calib3d/calib3d.hpp"
@@ -28,6 +29,16 @@ Calibration::Calibration(const cv::Mat& P, const cv::Mat& Tr) {
     T_cam_velo = T * T_cam_velo;
     cv::Mat transform = P * T_cam_velo;
 
+    auto [rotation_vector, translation, intrinsic] = DecomposeProjectionMatrix(transform);
+    cv::Mat no_distortion = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
+
+    rotation_vector_ = rotation_vector.clone();
+    translation_vector_ = translation.clone();
+    intrinsic_ = intrinsic.clone();
+    distortion_ = no_distortion.clone();
+}
+
+std::tuple<cv::Mat, cv::Mat, cv::Mat> Calibration::DecomposeProjectionMatrix(const cv::Mat& transform) {
     cv::Mat intrinsic(3, 3, cv::DataType<double>::type);
     cv::Mat rotation(3, 3, cv::DataType<double>::type);
     cv::Mat translation_homogeneous(4, 1, cv::DataType<double>::type);
@@ -41,12 +52,7 @@ Calibration::Calibration(const cv::Mat& P, const cv::Mat& Tr) {
     cv::Mat rotation_vector(3, 1, cv::DataType<double>::type);  // rodrigues rotation matrix
     cv::Rodrigues(rotation, rotation_vector);
 
-    cv::Mat no_distortion = cv::Mat::zeros(4, 1, cv::DataType<double>::type);
-
-    rotation_vector_ = rotation_vector.clone();
-    translation_vector_ = translation.clone();
-    intrinsic_ = intrinsic.clone();
-    distortion_ = no_distortion.clone();
+    return std::make_tuple(rotation_vector.clone(), translation.clone(), intrinsic.clone());
 }
 
 cv::Mat Calibration::Rotation() const { return rotation_vector_; }
